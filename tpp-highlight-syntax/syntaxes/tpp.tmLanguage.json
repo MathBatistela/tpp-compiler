@@ -1,0 +1,111 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Tpp",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#function"
+		},
+		{
+			"include": "#variable"
+		},
+		{
+			"include": "#string"
+		},
+		{
+			"include": "#number"
+		},
+		{
+			"include": "#comment"
+		}
+	],
+	"repository": {
+
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.tpp",
+					"match": "\\\b(se|então|senão|repita|até|fim|erro|vazio)\\b"
+
+				},
+				{
+					"name": "keyword.type.tpp",
+					"match": "\\b(inteiro|flutuante)\\b"
+				}
+			]
+		},
+
+		"function": {
+			"name": "entity.name.function.tpp",
+			"patterns": [
+				{
+					"name": "entity.name.function.tpp",
+					"match": "([a-zA-Z_áÁãÃàÀéÉíÍóÓõÕ0-9]*)+\\(\\)"
+				},
+				{
+					"name": "entity.name.function.tpp",
+					"match": "\\)"
+				},
+				{
+					"name": "entity.name.function.tpp",
+					"match": "\\("
+				},
+				{
+					"name": "entity.name.function.tpp",
+					"match": "([a-zA-Z_áÁãÃàÀéÉíÍóÓõÕ0-9]*)+\\("
+				}
+			]
+		},
+
+		"variable": {
+			"name": "variable.name.tpp",
+			"patterns": [
+				{
+					"name": "variable.name.tpp",
+					"match": "[a-zA-Z_áÁãÃàÀéÉíÍóÓõÕ][a-zA-Z_áÁãÃàÀéÉíÍóÓõÕ0-9]*"
+				}
+			]
+		},
+
+		"string": {
+			"name": "string.quoted.double.tpp",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.tpp",
+					"match": "\\\\."
+				}
+			]
+		},
+
+		"number": {
+			"name": "constant.numeric.tpp",
+			"patterns": [
+				{
+					"name": "constant.numeric.tpp",
+					"match": "\\d+"
+					},
+					{
+					"name": "constant.numeric.float.tpp",
+					"match": "\\d+\\.\\d+"
+					}
+			]
+		},
+
+		"comment": {
+			"name": "comment.block.tpp",
+			"begin": "{",
+			"end": "}",
+			"patterns": [
+				{
+					"name": "comment.block.tpp",
+					"match": "(\\{((.|\n)*?)\\})"
+				}
+			]
+		}
+	},
+	"scopeName": "source.tpp"
+}

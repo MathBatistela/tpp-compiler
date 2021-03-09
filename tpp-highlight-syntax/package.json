@@ -1,0 +1,25 @@
+{
+    "name": "tpp-highlight-syntax",
+    "displayName": "TPP Highlight syntax",
+    "description": "Highlighting syntax for tpp language",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.54.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "tpp",
+            "aliases": ["Tpp", "tpp"],
+            "extensions": [".tpp"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "tpp",
+            "scopeName": "source.tpp",
+            "path": "./syntaxes/tpp.tmLanguage.json"
+        }]
+    }
+}
