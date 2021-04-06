@@ -11,25 +11,25 @@ class TppLexer(object):
     "NUM_PONTO_FLUTUANTE",  # ponto flutuate
     "NUM_INTEIRO",  # inteiro
     # operadores binarios
-    "ADICAO",  # +
-    "SUBTRACAO",  # -
-    "MULTIPLICACAO",  # *
-    "DIVISAO",  # /
-    "E_LOGICO",  # &&
-    "OU_LOGICO",  # ||
-    "DIFERENCA",  # <>
+    "MAIS",  # +
+    "MENOS",  # -
+    "VEZES",  # *
+    "DIVIDE",  # /
+    "E",  # &&
+    "OU",  # ||
+    "DIFERENTE",  # <>
     "MENOR_IGUAL",  # <=
     "MAIOR_IGUAL",  # >=
     "MENOR",  # <
     "MAIOR",  # >
-    "IGUALDADE",  # =
+    "IGUAL",  # =
     # operadores unarios
-    "NEGACAO",  # !
+    "NAO",  # !
     # simbolos
-    "ABRE_PAR",  # (
-    "FECHA_PAR",  # )
-    "ABRE_COL",  # [
-    "FECHA_COL",  # ]
+    "ABRE_PARENTESE",  # (
+    "FECHA_PARENTESE",  # )
+    "ABRE_COLCHETE",  # [
+    "FECHA_COLCHETE",  # ]
     "VIRGULA",  # ,
     "DOIS_PONTOS",  # :
     "ATRIBUICAO",  # :=
@@ -56,30 +56,30 @@ class TppLexer(object):
     # Expressões Regulares para tokens simples
 
     # Símbolos.
-    t_ADICAO    = r'\+'
-    t_SUBTRACAO  = r'-'
-    t_MULTIPLICACAO   = r'\*'
-    t_DIVISAO = r'/'
-    t_ABRE_PAR  = r'\('
-    t_FECHA_PAR  = r'\)'
-    t_ABRE_COL = r'\['
-    t_FECHA_COL = r'\]'
+    t_MAIS    = r'\+'
+    t_MENOS  = r'-'
+    t_VEZES   = r'\*'
+    t_DIVIDE = r'/'
+    t_ABRE_PARENTESE  = r'\('
+    t_FECHA_PARENTESE  = r'\)'
+    t_ABRE_COLCHETE = r'\['
+    t_FECHA_COLCHETE = r'\]'
     t_VIRGULA = r','
     t_ATRIBUICAO = r':='
     t_DOIS_PONTOS = r':'
 
     # Operadores Lógicos.
-    t_E_LOGICO = r'&&'
-    t_OU_LOGICO = r'\|\|'
-    t_NEGACAO = r'!'
+    t_E = r'&&'
+    t_OU = r'\|\|'
+    t_NAO = r'!'
 
     # Operadores Relacionais.
-    t_DIFERENCA = r'<>'
+    t_DIFERENTE = r'<>'
     t_MENOR_IGUAL = r'<='
     t_MAIOR_IGUAL = r'>='
     t_MENOR = r'<'
     t_MAIOR = r'>'
-    t_IGUALDADE = r'='
+    t_IGUAL = r'='
     
     # Expressões Regulares para tokens complexos
     
@@ -99,7 +99,7 @@ class TppLexer(object):
         return t
 
     def t_NUM_PONTO_FLUTUANTE(self,t):
-        r'[+-]?(\d+\.\d+)'
+        r'[+-]?(\d+\.\d*)'
         t.value = float(t.value)    
         return t
 
@@ -118,7 +118,7 @@ class TppLexer(object):
 
     # Tratamento de erro
     def t_error(self,t):
-        print("Caractere inválido '%s'" % t.value[0])
+        print("Caracter inválido '%s'" % t.value[0])
         t.lexer.skip(1)
 
     # Constrói o lexer
