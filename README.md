@@ -6,8 +6,7 @@
 ## Requirements
 
 * Python >= 3.8
-* PLY module
 
 ```sh
-  $ pip install ply
+  $ pip install -r requirements.txt
 ```
