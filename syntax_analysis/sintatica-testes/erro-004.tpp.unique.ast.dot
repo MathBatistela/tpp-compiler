@@ -1,0 +1,17 @@
+digraph tree {
+    "0x7fe68a549e80" [label="programa"];
+    "0x7fe68a4d2f10" [label="lista_declaracoes"];
+    "0x7fe68a5498e0" [label="declaracao"];
+    "0x7fe68a708bb0" [label="declaracao_funcao"];
+    "0x7fe68a708460" [label="tipo"];
+    "0x7fe68a708d90" [label="INTEIRO"];
+    "0x7fe68a4d2d90" [label="inteiro"];
+    "0x7fe68a4d2e20" [label="ERROR::3"];
+    "0x7fe68a549e80" -> "0x7fe68a4d2f10";
+    "0x7fe68a4d2f10" -> "0x7fe68a5498e0";
+    "0x7fe68a5498e0" -> "0x7fe68a708bb0";
+    "0x7fe68a708bb0" -> "0x7fe68a708460";
+    "0x7fe68a708bb0" -> "0x7fe68a4d2e20";
+    "0x7fe68a708460" -> "0x7fe68a708d90";
+    "0x7fe68a708d90" -> "0x7fe68a4d2d90";
+}

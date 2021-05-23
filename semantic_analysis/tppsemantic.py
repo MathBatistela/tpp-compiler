@@ -13,18 +13,22 @@ class Row():
 
 class SemanticAnalyzer:
 
-    def __init__(self,root):
-        self.root = root
+    def __init__(self,file):
+        self.root = get_root(file)
         self.set_scope()
         self.var_table = self.generate_var_table()
+        print()
         self.func_table = self.generate_func_table()
+        # self.error_handling()
+        # self.set_atribution_asto()
 
     @staticmethod
     def raise_error(message,line=None):
         if line:
             message = message + f" , na linha {line}"
         print("Erro >>> " + message)
-        sys.exit()
+        # sys.exit()
+        pass
 
     @staticmethod
     def raise_warning(message,line=None):
@@ -83,7 +87,7 @@ class SemanticAnalyzer:
 
         func_obj_rows = [list((o.__dict__).values()) for o in func_obj_rows]
         func_table = pd.DataFrame(data=func_obj_rows, columns=["Tipo","Nome","Parametros","N-params","Retorna","Escopo","Linha"])
-        print(func_table)
+        print(func_table.to_markdown())
         return(func_table)
 
     def param_vars(self):
@@ -144,8 +148,7 @@ class SemanticAnalyzer:
 
         var_obj_rows = [list((o.__dict__).values()) for o in var_obj_rows]
         var_table = pd.DataFrame(data=var_obj_rows, columns=["Token", "Lexema", "Tipo", "dim", "tam_dim1", "tam_dim2", "escopo", "linha"])
-        # var_table.drop_duplicates(subset='Lexema', inplace=True)
-        print(var_table)
+        print(var_table.to_markdown())
         return var_table
 
     @staticmethod
@@ -190,6 +193,7 @@ class SemanticAnalyzer:
             for child in a.children: child.parent = None
             a.children = [leaves[1]]
 
+
     def error_handling(self):
 
         calls = findall_by_attr(self.root, "chamada_funcao")
@@ -202,6 +206,8 @@ class SemanticAnalyzer:
         if principal:
             princip_calls = findall_by_attr(principal[0].parent.parent, "chamada_funcao")
             princip_call_names = [call.child(name="ID").child().name for call in princip_calls]
+            if not principal[0].child(name="retorna"):
+                self.raise_error("Função principal deveria retornar inteiro, mas retorna vazio")
             if "principal" in princip_call_names:
                 self.raise_warning("Chamada recursiva para principal")
                 not_called.append("principal")
@@ -212,7 +218,7 @@ class SemanticAnalyzer:
             not_called.remove("principal")
         except:
             self.raise_error(f"Chamada para a função principal não permitida")
-            pass
+        
 
         # Verifica as funcoes declaradas e nao utilizadas
         not_declared = [func for func in call_names if func not in list(self.func_table.Nome)]
@@ -232,23 +238,29 @@ class SemanticAnalyzer:
             list_arg = call.child(name="lista_argumentos")
             n_params = len(findall(list_arg, filter_=lambda node: node.name in ("var", "numero")))
 
-            table_index = self.func_table[self.func_table['Nome'] == func_id.name].index.item()
-            if self.func_table['N-params'][table_index] != n_params:
-                self.raise_error(f"Chamada à função '{func_id.name}' com número de parâmetros diferente que o declarado",func_id.line)
+            try:
+                # Verifica se o retorno bate com o tipo da funcao
+                table_index = self.func_table[self.func_table['Nome'] == func_id.name].index.item()
+                return_type = self.func_table['Retorna'][table_index]
+                func_type = self.func_table['Tipo'][table_index]
 
-            # Verifica se o retorno bate com o tipo da funcao
-            return_type = self.func_table['Retorna'][table_index]
-            func_type = self.func_table['Tipo'][table_index]
+                if func_type != return_type[0]:
+                    if return_type[0] == "ID":
+                        if return_type[1] in self.var_table.Lexema.values:
+                            var_type = self.var_table.loc[self.var_table.Lexema == return_type[1], 'Tipo'].values[0]
+                            if  var_type != func_type:
+                                self.raise_error(f"Função '{func_id.name}' deveria retornar {func_type.lower()}, mas retorna {var_type.lower()}")
+                        else:
+                            self.raise_error(f"Função '{func_id.name}' retorna um parâmetro inexistente")
+        
+                    elif return_type[0] != func_type:
+                        self.raise_error(f"Função '{func_id.name}' deveria retornar {func_type.lower()}, mas retorna {return_type[0].lower()}")
 
-            if func_type != return_type[0]:
-                if return_type[0] == "ID":
-                    if return_type[1] in self.var_table.Lexema.values:
-                        var_type = self.var_table.loc[self.var_table.Lexema == return_type[1], 'Tipo'].values[0]
-                        if  var_type != func_type:
-                            self.raise_error(f"Função '{func_id.name}' deveria retornar {func_type.lower()}, mas retorna {var_type.lower()}")
-                    else:
-                        self.raise_error(f"Função '{func_id.name}' retorna um parâmetro inexistente")
-
+                if self.func_table['N-params'][table_index] != n_params:
+                    self.raise_error(f"Chamada à função '{func_id.name}' com número de parâmetros diferente que o declarado",func_id.line)
+            except:
+                pass
+                
         # Verifica variaveis declaradas e não utilizadas
         var_uti = findall(self.root, filter_=lambda node: node.name in ("fator", "atribuicao"))
         
@@ -306,6 +318,15 @@ class SemanticAnalyzer:
                     elif type(value) is float and (assigned_type[1] == "INTEIRO"):
                         self.raise_warning(f"Coerção implícita do valor atribuído para '{assigned}', variável inteira recebendo um flutuante")
 
+        for index, row in self.var_table.iterrows():
+            if isinstance(row['tam_dim1'],str): pass
+            if not float(row['tam_dim1']).is_integer() or not float(row['tam_dim2']).is_integer():
+                self.raise_error(f"índice de array '{row['Lexema']}' não inteiro")
+
+    def export_tree(self):
+        from anytree.exporter import UniqueDotExporter
+        UniqueDotExporter(self.root).to_picture("ex" + ".unique.ast.png")
+
 def main():
     arg = sys.argv[1]
     if not arg.endswith('.tpp'):
@@ -315,15 +336,13 @@ def main():
     source_file = data.read()
     data.close()
 
-    root = get_root(source_file)
-
-    a = SemanticAnalyzer(root)
-
-    from anytree.exporter import DotExporter, UniqueDotExporter
-    UniqueDotExporter(root).to_picture("all_test" + ".unique.ast.png")
+    a = SemanticAnalyzer(source_file)
 
     print()
     a.error_handling()
+    a.set_atribution_asto()
+    a.export_tree()
+    print()
 
 if __name__ == "__main__":
     main()
